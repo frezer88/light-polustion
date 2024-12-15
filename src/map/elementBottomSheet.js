@@ -1,7 +1,17 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-export default function ElementBottomSheet ({latitude, longitude, handleCloseModalPress, showPointOnMap}) {
+export default function ElementBottomSheet ({latitude, longitude, handleCloseModalPress, setFocusCordinates}) {
+
+  const showPointOnMap = () => {
+    setFocusCordinates((prev) => ({
+      ...prev,
+      latitude: latitude,
+      longitude: longitude
+    }))
+    handleCloseModalPress();
+  }
+
   return (
     <View style={styles.container}>
       <View style={{}}>
@@ -15,10 +25,7 @@ export default function ElementBottomSheet ({latitude, longitude, handleCloseMod
         </View>
       </View>
       <TouchableOpacity
-        onPress={() => {
-          showPointOnMap()
-          handleCloseModalPress();
-        }}
+        onPress={() => showPointOnMap()}
       >
         <Icon
           name={'location-outline'}

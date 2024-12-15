@@ -1,77 +1,75 @@
-import {TouchableOpacity, View, Text} from 'react-native';
-import MapView, {Circle, Marker} from 'react-native-maps';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import BottomSheet from './BottomSheet';
+import { TouchableOpacity, View,Text } from "react-native";
+import MapView, { Circle, Marker } from "react-native-maps";
+import { useCallback, useEffect, useRef, useState } from "react";
+import BottomSheet from './BottomSheet'
 import Geolocation from '@react-native-community/geolocation';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {useSharedValue} from 'react-native-reanimated';
+import Icon from "react-native-vector-icons/Ionicons";
+import { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import {generatePointsInCircle, getLightPollutions} from '../points';
 
 const cordMap = [
   {
     id: 1,
     latitude: 37.78825,
-    longitude: -122.421,
+    longitude: -122.4210,
   },
   {
     id: 2,
     latitude: 37.78825,
     longitude: -122.4324,
-  },
-];
+  }
+]
 
-export default function Index() {
+export default function Index(){
+
   const [focusCordinates, setFocusCordinates] = useState({
     latitude: 37.78825,
-    longitude: -121.421,
+    longitude: -121.4210,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
-  });
+  })
 
   const [myCoordinates, setMyCoordinates] = useState({
     latitude: null,
     longitude: null,
-  });
+  })
 
   const [points, setPoints] = useState([]);
   const bottomSheetPosition = useSharedValue(0);
+  const [radiusSearch, setRadiusSearch] = useState(500)
+
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
-      info => {
-        setFocusCordinates({
-          latitude: info.coords.latitude,
-          longitude: info.coords.longitude,
-        });
-      },
-      error => {
-        setFocusCordinates({
-          //Дефолт Москва
-          latitude: 55.746783,
-          longitude: 37.62347,
-        });
-      },
-    );
+    Geolocation.getCurrentPosition(info => {
+      setFocusCordinates({
+        latitude: info.coords.latitude,
+        longitude: info.coords.longitude,
+      })
+    }, error => {
+      setFocusCordinates({//Дефолт Москва
+        latitude: 55.746783,
+        longitude: 37.623470,
+      })
+    });
 
     const watchId = Geolocation.watchPosition(
-      pos => {
+      (pos) => {
         // Успешное получение геолокации
-        const {latitude, longitude} = pos.coords;
-        setMyCoordinates({latitude: latitude, longitude: longitude});
+        const { latitude, longitude } = pos.coords;
+        setMyCoordinates({latitude: latitude, longitude: longitude });
       },
-      error => {
-        setMyCoordinates({
-          //Дефолт Москва
+      (error) => {
+        setMyCoordinates({//Дефолт Москва
           latitude: 55.746783,
-          longitude: 37.62347,
-        });
+          longitude: 37.623470,
+        })
       },
       {
         enableHighAccuracy: true, // Включить высокую точность (например, GPS)
         distanceFilter: 10, // Обновлять данные при изменении на 10 метров
         interval: 5000, // Интервал получения данных (в миллисекундах)
         fastestInterval: 2000, // Самый короткий интервал
-      },
+      }
     );
 
     (async () => {
@@ -90,28 +88,14 @@ export default function Index() {
         Geolocation.clearWatch(watchId);
       }
     };
-  }, []);
+  }, [])
 
   return (
     <View style={styles.container}>
-      <MapView style={{flex: 1}} region={focusCordinates}>
-        <TouchableOpacity
-          onPress={() => {
-            setFocusCordinates(myCoordinates);
-          }}
-          style={{
-            position: 'absolute',
-            bottom: 50,
-            right: 15,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            backgroundColor: '#ffffff',
-            borderRadius: 15,
-            zIndex: 100,
-          }}
-          activeOpacity={0.7}>
-          <Icon name={'body'} size={35} color={'#027BFF'} />
-        </TouchableOpacity>
+      <MapView
+        style={{ flex: 1 }}
+        region={focusCordinates}
+      >
         {cordMap.map((marker, index) => (
           <Marker
             key={index}
@@ -121,29 +105,25 @@ export default function Index() {
             }}
             title={marker.title}
             description={marker.description}>
-            <View
-              style={{
-                padding: 5,
-                borderRadius: 100,
-                backgroundColor: '#9f0000',
-              }}
-            />
+            <View style={{ padding: 5, borderRadius: 100, backgroundColor: "#9f0000" }}/>
           </Marker>
         ))}
-        <Marker coordinate={myCoordinates}>
-          <Icon name={'body'} size={25} color={'#027BFF'} />
+        <Marker
+          coordinate={myCoordinates}
+        >
+          <Icon
+            name={'body'}
+            size={25}
+            color={'#027BFF'}
+          />
         </Marker>
-        {/*<Circle*/}
-        {/*  center={{latitude: 58.00155756232546, longitude: 55.94561631018744}}*/}
-        {/*  radius={600}*/}
-        {/*/>*/}
-        {/*<Marker*/}
-        {/*  coordinate={{*/}
-        {/*    latitude: 58.00155756232546,*/}
-        {/*    longitude: 55.94561631018744,*/}
-        {/*  }}>*/}
-        {/*  <View style={{width: 5, height: 5, backgroundColor: 'red'}} />*/}
-        {/*</Marker>*/}
+        <Circle
+          center={myCoordinates}
+          radius={radiusSearch}
+          strokeWidth={2} // Толщина обводки
+          strokeColor="#027BFF" // Цвет обводки
+          fillColor="rgba(0, 123, 255, 0.3)" // Цвет заливки круга
+        />
         {points.map((point, index) => (
           <Marker
             coordinate={{
@@ -164,10 +144,13 @@ export default function Index() {
       </MapView>
       <BottomSheet
         cordMap={cordMap}
-        bottomSheetPosition={bottomSheetPosition}
+        setFocusCordinates={setFocusCordinates}
+        myCoordinates={myCoordinates}
+        radiusSearch={radiusSearch}
+        setRadiusSearch={setRadiusSearch}
       />
     </View>
-  );
+  )
 }
 
 const styles = {
