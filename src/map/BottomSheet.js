@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ElementBottomSheet from "./elementBottomSheet";
 import Icon from "react-native-vector-icons/Ionicons";
 
-export default function BottomSheet({ cordMap, setFocusCordinates, myCoordinates }) {
+export default function BottomSheet({ cordMap, setFocusCordinates, myCoordinates, radiusSearch, setRadiusSearch }) {
   const bottomSheetRef = useRef(null);
   const snapPoints = ["5%", "50%"];
 
@@ -24,6 +24,16 @@ export default function BottomSheet({ cordMap, setFocusCordinates, myCoordinates
   const showMyPositionOnMap = () => {
     setFocusCordinates(myCoordinates)
     handleCloseModalPress()
+  }
+
+  const plusRadius = () => {
+    setRadiusSearch(prev => prev + 10)
+  }
+
+  const minusRadius = () => {
+    if(radiusSearch >= 100){
+      setRadiusSearch(prev => prev - 10)
+    }
   }
 
   useEffect(() => {
@@ -48,6 +58,46 @@ export default function BottomSheet({ cordMap, setFocusCordinates, myCoordinates
               color={'grey'}
             />
           </View>
+          <TouchableOpacity
+            onPress={() => plusRadius()}
+            style={{
+              position: 'absolute',
+              bottom: 160,
+              right: 15,
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              backgroundColor: '#ffffff',
+              borderRadius: 15,
+              zIndex: 100,
+            }}
+            activeOpacity={0.7}
+          >
+            <Icon
+              name={'add-circle-outline'}
+              size={35}
+              color={'#027BFF'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => minusRadius()}
+            style={{
+              position: 'absolute',
+              bottom: 100,
+              right: 15,
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              backgroundColor: '#ffffff',
+              borderRadius: 15,
+              zIndex: 100,
+            }}
+            activeOpacity={0.7}
+          >
+            <Icon
+              name={'remove-circle-outline'}
+              size={35}
+              color={'#027BFF'}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => showMyPositionOnMap()}
             style={{

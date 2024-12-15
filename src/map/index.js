@@ -1,5 +1,5 @@
 import { TouchableOpacity, View,Text } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Circle, Marker } from "react-native-maps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import BottomSheet from './BottomSheet'
 import Geolocation from '@react-native-community/geolocation';
@@ -32,6 +32,8 @@ export default function Index(){
     latitude: null,
     longitude: null,
   })
+
+  const [radiusSearch, setRadiusSearch] = useState(500)
 
 
   useEffect(() => {
@@ -101,11 +103,20 @@ export default function Index(){
             color={'#027BFF'}
           />
         </Marker>
+        <Circle
+          center={myCoordinates}
+          radius={radiusSearch}
+          strokeWidth={2} // Толщина обводки
+          strokeColor="#027BFF" // Цвет обводки
+          fillColor="rgba(0, 123, 255, 0.3)" // Цвет заливки круга
+        />
       </MapView>
       <BottomSheet
         cordMap={cordMap}
         setFocusCordinates={setFocusCordinates}
         myCoordinates={myCoordinates}
+        radiusSearch={radiusSearch}
+        setRadiusSearch={setRadiusSearch}
       />
     </View>
   )
