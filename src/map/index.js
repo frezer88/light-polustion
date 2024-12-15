@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BottomSheet from './BottomSheet'
 import Geolocation from '@react-native-community/geolocation';
 import Icon from "react-native-vector-icons/Ionicons";
-import { useSharedValue } from "react-native-reanimated";
+import { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 const cordMap = [
   {
@@ -32,8 +32,6 @@ export default function Index(){
     latitude: null,
     longitude: null,
   })
-
-  const bottomSheetPosition = useSharedValue(0);
 
 
   useEffect(() => {
@@ -82,28 +80,6 @@ export default function Index(){
         style={{ flex: 1 }}
         region={focusCordinates}
       >
-        <TouchableOpacity
-          onPress={() => {
-            setFocusCordinates(myCoordinates)
-          }}
-          style={{
-            position: 'absolute',
-            bottom: 50,
-            right: 15,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            backgroundColor: '#ffffff',
-            borderRadius: 15,
-            zIndex: 100,
-          }}
-          activeOpacity={0.7}
-        >
-          <Icon
-            name={'body'}
-            size={35}
-            color={'#027BFF'}
-          />
-        </TouchableOpacity>
         {cordMap.map((marker, index) => (
           <Marker
             key={index}
@@ -128,7 +104,8 @@ export default function Index(){
       </MapView>
       <BottomSheet
         cordMap={cordMap}
-        bottomSheetPosition={bottomSheetPosition}
+        setFocusCordinates={setFocusCordinates}
+        myCoordinates={myCoordinates}
       />
     </View>
   )
