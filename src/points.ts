@@ -1,4 +1,4 @@
-const LIGHT_POLLUTION_TOKEN = 'MTczNDI2OTc5MTA4MTtpc3Vja2RpY2tzOik=';
+const LIGHT_POLLUTION_TOKEN = 'MTczNDM3OTM2NDUzNjtpc3Vja2RpY2tzOik=';
 const LIGHT_POLLUTION_ARRAY: any[] = [];
 const getLightPollution = async (lat: number, lng: number) => {
   const url = `https://www.lightpollutionmap.info/QueryRaster/?qk=${LIGHT_POLLUTION_TOKEN}&ql=wa_2015&qt=point&qd=${lat},${lng}`;
@@ -73,8 +73,8 @@ function generatePointsInCircle(
       // console.log(distanceToCenter);
       if (
         changedRadius === 0 ||
-        (distanceToCenter >= radius - changedRadius &&
-          distanceToCenter <= radius)
+        (distanceToCenter > radius - changedRadius - 1 / 1000 &&
+          distanceToCenter < radius + 1 / 1000)
       ) {
         points.push([lat + offsetLat, lng + offsetLng]);
       }
@@ -96,12 +96,12 @@ const getLightPollutions = async (
   if (changedRadius === undefined || changedRadius > 0) {
     const points =
       changedRadius === undefined
-        ? generatePointsInCircle(lat, lng, radius / 1000, 0.3)
+        ? generatePointsInCircle(lat, lng, radius / 1000, 1.5)
         : generatePointsInCircle(
             lat,
             lng,
             radius / 1000,
-            0.3,
+            1.5,
             changedRadius / 1000,
           );
     const lightPollutions: {
@@ -142,12 +142,25 @@ const getLightPollutions = async (
     //   });
     // }
   } else if (changedRadius < 0) {
-    LIGHT_POLLUTION_ARRAY.forEach((point, index) => {
-      if (calculateDistance(lat, lng, point.lat, point.lon) > radius) {
-        LIGHT_POLLUTION_ARRAY.splice(index, 1);
+    for (let i = LIGHT_POLLUTION_ARRAY.length - 1; i >= 0; i--) {
+      const point = LIGHT_POLLUTION_ARRAY[i];
+      const distance = calculateDistance(lat, lng, point.lat, point.lon);
+
+      console.log(
+        i +
+          ' distance ' +
+          distance +
+          ' radius ' +
+          radius +
+          ' isDeleted ' +
+          (distance > radius),
+      );
+
+      if (distance > radius - 1) {
+        LIGHT_POLLUTION_ARRAY.splice(i, 1);
         // --i;
       }
-    });
+    }
   }
 
   return LIGHT_POLLUTION_ARRAY;

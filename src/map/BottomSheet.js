@@ -18,6 +18,8 @@ export default function BottomSheet({
   myCoordinates,
   radiusSearch,
   setRadiusSearch,
+  bestPoints,
+  bestestPoint,
 }) {
   const bottomSheetRef = useRef(null);
   const snapPoints = ['5%', '50%'];
@@ -33,8 +35,9 @@ export default function BottomSheet({
   // Рендеринг маркеров
   const renderItem = ({item}) => (
     <ElementBottomSheet
-      latitude={item.latitude}
-      longitude={item.longitude}
+      latitude={item.lat}
+      longitude={item.lon}
+      pollution={item.lightPollutionNumber}
       handleCloseModalPress={handleCloseModalPress}
       setFocusCordinates={setFocusCordinates}
     />
@@ -46,15 +49,15 @@ export default function BottomSheet({
   };
 
   const plusRadius = () => {
-    if (radiusSearch <= 3000) {
-      setRadiusSearch(prev => prev + 50);
+    if (radiusSearch <= 20000) {
+      setRadiusSearch(prev => prev + 1200);
       EventEmitter.emit('pressPlus');
     }
   };
 
   const minusRadius = () => {
     if (radiusSearch >= 100) {
-      setRadiusSearch(prev => prev - 50);
+      setRadiusSearch(prev => prev - 1200);
       EventEmitter.emit('pressMinus');
     }
   };
@@ -133,13 +136,43 @@ export default function BottomSheet({
             borderBottomColor: '#dddddd',
           }}>
           <Text style={{fontSize: 16, fontWeight: 'bold'}}>
-            Информация о точках
+            {bestPoints.length === 0 && !bestestPoint
+              ? 'Подходящие места отсутствуют'
+              : 'Информация о точках обзора'}
           </Text>
         </View>
         <FlatList
-          data={cordMap}
+          ListHeaderComponent={() => (
+            <>
+              {!!bestestPoint && (
+                <View style={{marginVertical: 20}}>
+                  <View style={{alignItems: 'center'}}>
+                    <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+                      Лучшая точка
+                    </Text>
+                  </View>
+                  <ElementBottomSheet
+                    latitude={bestestPoint.lat}
+                    longitude={bestestPoint.lon}
+                    pollution={bestestPoint.lightPollutionNumber}
+                    handleCloseModalPress={handleCloseModalPress}
+                    setFocusCordinates={setFocusCordinates}
+                  />
+                </View>
+              )}
+
+              {bestPoints.length > 0 && (
+                <View style={{marginTop: 10, alignItems: 'center'}}>
+                  <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+                    {`Найдено мест: ${bestPoints.length}`}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+          data={bestPoints}
           renderItem={renderItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={(item, index) => `item${item.lat}${item.lon}-${index}`}
         />
       </BottomSheetView>
     </BottomSheetModal>
